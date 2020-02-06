@@ -28,7 +28,7 @@ class HelloWorld(Resource):
     def get(self):
         return {'hello': 'world'}
 
-class user_balance(Resource):
+class user_data(Resource):
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('balance',type=str,required=True,help='balance cant be blank')
@@ -63,6 +63,32 @@ class user_balance(Resource):
             except:
                 return {"message":"transaction unsuccessful",
                         "error":"invalid amount"}
+
+    def get(self):
+    	parser = reqparse.RequestParser()
+    	parser.add_argument('user_id',type=str,required=True,help='user_id cant be blank')
+    	data = parser.parse_args()
+    	user_id = data['user_id']
+
+    	all_users = db.child("users").get()
+
+    	for user in all_users.each():
+            if user_id == user.key():
+                flag = 1
+                user_data = user.val()
+                curr_balance = int(user_data["balance"])
+
+                return {"balance":"{}".format(curr_balance)}
+
+            else:
+                flag = 0
+
+            if flag==0:
+            	return {"message":"user not found , balance cant be updated"}
+
+
+
+
 		
 
 
@@ -147,7 +173,7 @@ class user_balance(Resource):
 
 
 api.add_resource(HelloWorld, '/')
-api.add_resource(user_balance,'/balance')
+api.add_resource(user_data,'/balance')
 # api.add_resource(user_data,'/user')
 
 if __name__ == '__main__':
