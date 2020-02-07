@@ -28,7 +28,7 @@ class HelloWorld(Resource):
     def get(self):
         return {'hello': 'world'}
 
-class user_data(Resource):
+class user_balance(Resource):
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('balance',type=str,required=True,help='balance cant be blank')
@@ -87,94 +87,74 @@ class user_data(Resource):
             	return {"message":"user not found , balance cant be updated"}
 
 
+class user_data(Resource):
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('user_name',type=str,required=True,help='user_name cant be blank')
+        parser.add_argument('user_adhar_card',type=str,required=True,help='adhar cant be blank')
+        parser.add_argument('user_phone',type=str,required=True,help='phone cant be blank')
+        
+        #generate user id and flag
 
+        data = parser.parse_args()
+
+        all_users = db.child("users").get()
+
+        if all_users.each():
+        	user_id = "user_{}".format(len(all_users.each())+1)
+        else:
+        	user_num = 1
+        	user_id = "user_1"
+
+
+
+        user_name = data['user_name']
+        user_adhar_card = data['user_adhar_card']
+        user_phone = data['user_phone']
+        flag = "0"
+        balance = "0"
+
+        data = {
+    			"user_name" : user_name,
+    			"user_id"   : user_id,
+    			"user_adhar_card" : user_adhar_card,
+    			"user_phone" : user_phone,
+    			"balance"    : balance,
+    			"flag"       : flag
+    			}
+
+        try:
+        	db.child("users").child("{}".format(user_id)).set(data)
+        	return {"message":"new user created"}
+        except:
+        	return {"message":"could not create a new user"}
+
+    def get(self):
+	    parser = reqparse.RequestParser()
+	    parser.add_argument('user_phone',type=str,required=True,help='user_number cant be blank')
+	    data = parser.parse_args()
+
+	    user_phone = data['user_phone']
+
+
+	    all_users = db.child("users").get()
+
+	    try:
+	        for user in all_users.each():
+	            user_data = user.val()
+	            if user_phone == user_data["user_phone"]:
+	                return {"user_data":user_data}
+	        return {"message":"user number is not registered"}
+
+	    except:
+	        {"message":"something went wrong"}
 
 		
-
-
-
-
-
-
-
-
-
-
-	    # data = {"name":"user1"}
-	    # db.child("users").push(data)
-	    # data = {"balance" : "60","user_id":"1"}
-	    # db.child("users").child("user1").push(data)
-
-	    # data = {"balance" : "60","user_id":"1"}
-	    # db.child("users").child("user_1").set(data)
-
-	   
-
-
-
-	  
-        # if balance>0:
-        # user = db.child("users").get()
-
-        #     return {
-        #             'data':'',
-        #             'message':'No file found',
-        #             'status':'error'
-        #             }
-        # photo = data['file']
-        # # type(photo)
-
-        # if photo:
-        #     # filename = '{}.png'.format(name)
-        #     # photo.save(os.path.join(UPLOAD_FOLDER,filename))
-        #     storage.child("{}.png".format(name)).put(data['file'])
-        #     return {
-        #             'data':'',
-        #             'message':'photo uploaded',
-        #             'status':'success'
-        #             }
-        # return {
-        #         'data':'',
-        #         'message':'Something whent wrong',
-        #         'status':'error'
-        #         }
-
-    # def get(self):
-    #     parser = reqparse.RequestParser()
-    #     parser.add_argument('name',type=str,required=True,help='cant be blank')
-    #     data = parser.parse_args()
-
-    #     name = data['name']
-
-    #     # url = storage.child("{}.png".format(name)).get_url(None)
-    #     # storage.child("{}.png".format(name)).download("{}.png".format(name))
-   
-
-
-    #     try:
-    #         url = storage.child("{}.png".format(name)).get_url(None)
-    #         return {
-    #                 'data':url,
-    #                 'message':'photo recieved',
-    #                 'status':'success'
-    #                 }
-    #     except:
-    #         return {
-    #                 'name':name,
-    #                 'data':'',
-    #                 'message':'Something whent wrong',
-    #                 'status':'error'
-    #                 }
-
-
-
-
-
-
-
 api.add_resource(HelloWorld, '/')
-api.add_resource(user_data,'/balance')
-# api.add_resource(user_data,'/user')
+api.add_resource(user_balance,'/balance')
+api.add_resource(user_data,'/user_data')
+# api.add_resource(auth,'/otp')
+
 
 if __name__ == '__main__':
     app.run(debug=True)
