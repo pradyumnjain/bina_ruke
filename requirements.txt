@@ -72,7 +72,7 @@ feedfinder2==0.0.4
 feedparser==5.2.1
 filelock==3.0.12
 firebase-admin==3.2.1
-Flask==0.12.1
+Flask==1.0
 Flask-Ask==0.9.8
 Flask-RESTful==0.3.7
 Flask-SQLAlchemy==2.4.1
