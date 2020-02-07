@@ -65,10 +65,12 @@ class user_balance(Resource):
                         "error":"invalid amount"}
 
     def get(self):
-    	parser = reqparse.RequestParser()
-    	parser.add_argument('user_id',type=str,required=True,help='user_id cant be blank')
-    	data = parser.parse_args()
-    	user_id = data['user_id']
+    	# parser = reqparse.RequestParser()
+    	# parser.add_argument('user_id',type=str,required=True,help='user_id cant be blank')
+    	# data = parser.parse_args()
+    	# user_id = data['user_id']
+
+    	user_id = "user_1"
 
     	all_users = db.child("users").get()
 
