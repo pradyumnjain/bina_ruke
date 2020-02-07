@@ -86,6 +86,44 @@ class user_balance(Resource):
             if flag==0:
             	return {"message":"user not found , balance cant be updated"}
 
+class source(Resource):
+	def post(self):
+		parser = reqparse.RequestParser()
+		parser.add_argument('user_id',type=str,required=True,help='user_name cant be blank')
+
+		data = parser.parse_args()
+
+		user_id = data['user_id']
+
+		all_users = db.child("users").get()
+
+		for user in all_users.each():
+			if user.key() == user_id:
+				db.child("users").child("{}".format(user_id)).update({"flag": "1"})
+				return {"message":"flag has been to set to 1"}
+		return {"message":"user not in database"}
+
+class destination(Resource):
+	def post(self):
+		parser = reqparse.RequestParser()
+		parser.add_argument('user_id',type=str,required=True,help='user_name cant be blank')
+
+		data = parser.parse_args()
+
+		user_id = data['user_id']
+
+		all_users = db.child("users").get()
+
+		for user in all_users.each():
+			if user.key() == user_id:
+				db.child("users").child("{}".format(user_id)).update({"flag": "0"})
+				user_data = user.val()
+				curr_balance = int(user_data['balance'])
+				curr_balance = curr_balance - 25
+				db.child("users").child("{}".format(user_id)).update({"balance": "{}".format(curr_balance)})
+				return {"message":"flag has been to set to 0 and balance updated"}
+		return {"message":"user not in database"}
+
 
 class user_data(Resource):
     def post(self):
@@ -153,7 +191,8 @@ class user_data(Resource):
 api.add_resource(HelloWorld, '/')
 api.add_resource(user_balance,'/balance')
 api.add_resource(user_data,'/user_data')
-# api.add_resource(auth,'/otp')
+api.add_resource(source,'/source')
+api.add_resource(destination,'/destination')
 
 
 if __name__ == '__main__':
